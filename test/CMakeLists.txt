@@ -1,5 +1,5 @@
 add_executable(module-tests
-        oatpp-my-module/tests.cpp
+        oatpp-wolfssl/tests.cpp
 )
 
 set_target_properties(module-tests PROPERTIES

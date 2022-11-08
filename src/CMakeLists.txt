@@ -1,7 +1,7 @@
 
 add_library(${OATPP_THIS_MODULE_NAME}
-        oatpp-my-module/MyClass.hpp
-        oatpp-my-module/MyClass.cpp
+        oatpp-wolfssl/MyClass.hpp
+        oatpp-wolfssl/MyClass.cpp
 )
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MODULE_NAME="oatpp-my-module"
+MODULE_NAME="oatpp-wolfssl"
 MODULE_VERSION="0.19.1"
 
 echo "remove include folder: '/usr/local/include/oatpp-$MODULE_VERSION/$MODULE_NAME'"

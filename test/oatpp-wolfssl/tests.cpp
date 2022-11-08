@@ -1,7 +1,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include "oatpp-my-module/MyClass.hpp"
+#include "oatpp-wolfssl/MyClass.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
