@@ -24,6 +24,7 @@ option(OATPP_DIR_SRC "Path to oatpp module directory (sources)")
 option(OATPP_DIR_LIB "Path to directory with liboatpp (directory containing ex: liboatpp.so or liboatpp.dynlib)")
 option(OATPP_BUILD_TESTS "Build tests for this module" ON)
 option(OATPP_INSTALL "Install module binaries" ON)
+option(OATPP_WOLFSSL_DEBUG "Enable wolfSSL debug logs" ON)
 
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
 
@@ -92,7 +93,18 @@ endif()
 message("\n############################################################################")
 message("## ${OATPP_THIS_MODULE_NAME} module. Resolving dependencies...\n")
 
-## TODO find dependecies here (if some)
+##############################
+## Find wolfSSL dependency
+
+include(FindPkgConfig)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/module")
+
+find_package(wolfSSL REQUIRED)
+
+message("WOLFSSL_INCLUDE_DIR=${WOLFSSL_INCLUDE_DIR}")
+message("WOLFSSL_TLS_LIBRARY=${WOLFSSL_TLS_LIBRARY}")
+message("WOLFSSL_VERSION=${WOLFSSL_VERSION}")
+
 
 message("\n############################################################################\n")
 
