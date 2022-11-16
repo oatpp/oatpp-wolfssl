@@ -224,7 +224,7 @@ void FullTest::onRun() {
       }
 
     }
-    OATPP_LOGD("FWH", "for loop done");
+
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   }, std::chrono::minutes(10));
