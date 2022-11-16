@@ -1,28 +1,52 @@
 
-#include "oatpp-test/UnitTest.hpp"
+#include "FullTest.hpp"
+#include "FullAsyncTest.hpp"
+#include "FullAsyncClientTest.hpp"
 
-#include "oatpp-wolfssl/MyClass.hpp"
-
-#include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 #include <iostream>
+#include <csignal>
 
 namespace {
 
-class Test : public oatpp::test::UnitTest {
-public:
-  Test() : oatpp::test::UnitTest("MyTag")
-  {}
-
-  void onRun() override {
-    // TODO write correct  tests
-    MyClass::doSomething();
-  }
-};
-
 void runTests() {
-  OATPP_RUN_TEST(Test);
+
+  /* ignore SIGPIPE */
+  #if !(defined(WIN32) || defined(_WIN32))
+    std::signal(SIGPIPE, SIG_IGN);
+  #endif
+
+  {
+
+    oatpp::test::wolfssl::FullTest test_virtual(0, 100);
+    test_virtual.run();
+
+    oatpp::test::wolfssl::FullTest test_port(8443, 10);
+    test_port.run();
+
+  }
+
+  {
+
+//    oatpp::test::wolfssl::FullAsyncTest test_virtual(0, 100);
+//    test_virtual.run();
+//
+//    oatpp::test::wolfssl::FullAsyncTest test_port(8443, 10);
+//    test_port.run();
+
+  }
+
+  {
+
+//    oatpp::test::wolfssl::FullAsyncClientTest test_virtual(0, 10);
+//    test_virtual.run(20); // - run this test 20 times.
+//
+//    oatpp::test::wolfssl::FullAsyncClientTest test_port(8443, 10);
+//    test_port.run(1);
+
+  }
+
 }
 
 }
