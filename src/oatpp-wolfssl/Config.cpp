@@ -40,7 +40,7 @@ static void wolfsslDebug(const int logLevel, const char* const logMessage) {
 namespace oatpp { namespace wolfssl {
 
 Config::Config(WOLFSSL_METHOD *protocolMethod) {
-  int res = wolfSSL_Init();
+  static int res = wolfSSL_Init();
   if (res != SSL_SUCCESS) {
     OATPP_LOGD("[oatpp::wolfssl::Config::Config()]", "Error. Call to wolfSSL_init() failed. Return value=%d", res);
     throw std::runtime_error("[oatpp::wolfssl::Config::Config()]: Error. Call to wolfSSL_init() failed.");
