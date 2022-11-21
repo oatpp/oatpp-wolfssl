@@ -55,7 +55,7 @@ void Connection::ConnectionContext::init() {
     if (error != WOLFSSL_ERROR_WANT_READ || error != WOLFSSL_ERROR_WANT_WRITE)
     {
       char buffer[80];
-      OATPP_LOGE("[Connection::ConnectionContext::init()]", "Error. Call to wolfSSL_connect(%p): %s", sslSession, wolfSSL_ERR_error_string(error, buffer));
+      OATPP_LOGE("[oatpp::wolfssl::Connection::ConnectionContext::init()]", "Error. Call to wolfSSL_connect(%p): %s", sslSession, wolfSSL_ERR_error_string(error, buffer));
       break;
     }
   }

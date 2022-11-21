@@ -42,8 +42,8 @@ namespace oatpp { namespace wolfssl {
 Config::Config(WOLFSSL_METHOD *protocolMethod) {
   int res = wolfSSL_Init();
   if (res != SSL_SUCCESS) {
-    OATPP_LOGD("[oatpp::wolfssl::client::ConnectionProvider::get()]", "Error. Call to wolfSSL_init() failed. Return value=%d", res);
-    throw std::runtime_error("[oatpp::wolfssl::client::ConnectionProvider::get()]: Error. Call to wolfSSL_init() failed.");
+    OATPP_LOGD("[oatpp::wolfssl::Config::Config()]", "Error. Call to wolfSSL_init() failed. Return value=%d", res);
+    throw std::runtime_error("[oatpp::wolfssl::Config::Config()]: Error. Call to wolfSSL_init() failed.");
   }
 
   m_sslCtx = wolfSSL_CTX_new(protocolMethod);

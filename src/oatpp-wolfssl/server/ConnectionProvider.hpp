@@ -34,7 +34,7 @@
 namespace oatpp { namespace wolfssl { namespace server {
 
 /**
- * MbedTLS server connection provider.
+ * wolfSSL server connection provider.
  * Extends &id:oatpp::base::Countable;, &id:oatpp::network::ServerConnectionProvider;.
  */
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
