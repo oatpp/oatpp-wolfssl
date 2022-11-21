@@ -15,7 +15,7 @@ set(OATPP_THIS_MODULE_DIRECTORIES oatpp-wolfssl) ## list of directories to insta
 project(${OATPP_THIS_MODULE_NAME}
         VERSION ${OATPP_THIS_MODULE_VERSION}
         LANGUAGES CXX
-        ## HOMEPAGE_URL "https://github.com/oatpp/oatpp-wolfssl"
+        HOMEPAGE_URL "https://github.com/oatpp/oatpp-wolfssl"
         ## DESCRIPTION "Something about my-module"
 )
 
@@ -24,7 +24,7 @@ option(OATPP_DIR_SRC "Path to oatpp module directory (sources)")
 option(OATPP_DIR_LIB "Path to directory with liboatpp (directory containing ex: liboatpp.so or liboatpp.dynlib)")
 option(OATPP_BUILD_TESTS "Build tests for this module" ON)
 option(OATPP_INSTALL "Install module binaries" ON)
-option(OATPP_WOLFSSL_DEBUG "Enable wolfSSL debug logs" ON)
+option(OATPP_WOLFSSL_DEBUG "Enable wolfSSL debug logs" OFF)
 
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
 
