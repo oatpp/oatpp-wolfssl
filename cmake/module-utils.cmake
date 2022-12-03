@@ -6,9 +6,13 @@ macro(target_link_oatpp target)
 
         target_link_libraries(${target}
                 PRIVATE oatpp::oatpp
-                PRIVATE oatpp::oatpp-test
         )
 
+        if(OATPP_LINK_TEST_LIBRARY)
+            target_link_libraries(${target}
+                PRIVATE oatpp::oatpp-test
+            )
+        endif()
     else()
 
         message("target_link_oatpp(${target}) to found in provided path oatpp lib")
