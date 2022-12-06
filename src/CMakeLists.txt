@@ -6,6 +6,19 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-wolfssl/Connection.cpp
         oatpp-wolfssl/client/ConnectionProvider.hpp
         oatpp-wolfssl/client/ConnectionProvider.cpp
+        oatpp-wolfssl/configurer/CertificateChainFileBuffer.hpp
+        oatpp-wolfssl/configurer/CertificateChainFileBuffer.cpp
+        oatpp-wolfssl/configurer/CertificateChainFile.hpp
+        oatpp-wolfssl/configurer/CertificateChainFile.cpp
+        oatpp-wolfssl/configurer/CertificateFileBuffer.hpp
+        oatpp-wolfssl/configurer/CertificateFileBuffer.cpp
+        oatpp-wolfssl/configurer/CertificateFile.hpp
+        oatpp-wolfssl/configurer/CertificateFile.cpp
+        oatpp-wolfssl/configurer/ContextConfigurer.hpp
+        oatpp-wolfssl/configurer/PrivateKeyFileBuffer.hpp
+        oatpp-wolfssl/configurer/PrivateKeyFileBuffer.cpp
+        oatpp-wolfssl/configurer/PrivateKeyFile.hpp
+        oatpp-wolfssl/configurer/PrivateKeyFile.cpp
         oatpp-wolfssl/server/ConnectionProvider.hpp
         oatpp-wolfssl/server/ConnectionProvider.cpp
 )

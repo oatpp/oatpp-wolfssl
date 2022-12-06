@@ -26,10 +26,14 @@
 #ifndef oatpp_wolfSSL_Config_hpp
 #define oatpp_wolfSSL_Config_hpp
 
-#include <string>
+#include <list>
 #include <memory>
+#include <string>
 
+#include "oatpp/core/Types.hpp"
 #include "wolfssl/ssl.h"
+
+#include "configurer/ContextConfigurer.hpp"
 
 namespace oatpp { namespace wolfssl {
 
@@ -46,7 +50,7 @@ public:
   /**
    * Constructor.
    */
-  Config(WOLFSSL_METHOD *protocolMethod);
+  Config(WOLFSSL_METHOD *protocolMethod, const std::list<std::shared_ptr<configurer::ContextConfigurer>>& configurationItems);
 
   /**
    * Non-virtual destructor.
@@ -57,7 +61,7 @@ public:
    * Create shared Config.
    * @return - `std::shared_ptr` to Config.
    */
-  static std::shared_ptr<Config> createShared(WOLFSSL_METHOD *protocolMethod);
+  static std::shared_ptr<Config> createShared(WOLFSSL_METHOD *protocolMethod, const std::list<std::shared_ptr<configurer::ContextConfigurer>>& configurationItems);
 
   /**
    * Create default server config.
@@ -66,24 +70,23 @@ public:
    * @param pkPassword - optional private key password.
    * @return - `std::shared_ptr` to Config.
    */
-  static std::shared_ptr<Config> createDefaultServerConfigShared(const char* serverCertFilePemFormat, const char* privateKeyFilePemFormat, const char* pkPassword = nullptr);
+  static std::shared_ptr<Config> createDefaultServerConfigShared(const oatpp::String& serverCertFilePemFormat, const oatpp::String& privateKeyFilePemFormat, const char* pkPassword = nullptr);
 
   /**
    * Create default client config.
-   * @param throwOnVerificationFailed - throw error on server certificate
    * @param caRootCert - string buffer containing the CA Root certificate to verify against
    * @param clientCert - string buffer containing the client certificate
    * @param privateKey - string buffer containing the private key
    * @return - `std::shared_ptr` to Config.
    */
-  static std::shared_ptr<Config> createDefaultClientConfigShared(bool throwOnVerificationFailed, std::string caRootCert, std::string clientCert, std::string privateKey);
+  static std::shared_ptr<Config> createDefaultClientConfigShared(std::string caRootCert, std::string clientCert, std::string privateKey);
 
   /**
    * Create default client config.
    * @param caRootCertFile - path to the CA Root certificate to verificate against
    * @return - `std::shared_ptr` to Config.
    */
-  static std::shared_ptr<Config> createDefaultClientConfigShared(const char* caRootCertFile = nullptr);
+  static std::shared_ptr<Config> createDefaultClientConfigShared(const oatpp::String& caRootCertFile = "");
 
   WOLFSSL_CTX *getTlsContext();
 };
