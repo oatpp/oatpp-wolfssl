@@ -112,6 +112,42 @@ std::shared_ptr<Config> Config::createDefaultClientConfigShared(const char* caRo
   return result;
 }
 
+std::shared_ptr<Config> Config::createDefaultClientConfigShared(bool, std::string caRootCert, std::string clientCert, std::string privateKey) {
+  auto result = createShared(wolfTLS_client_method());
+  int ret = WOLFSSL_SUCCESS;
+  if (caRootCert.size() == 0)
+  {
+    wolfSSL_CTX_set_verify(result->getTlsContext(), SSL_VERIFY_NONE, 0);
+  }
+  else
+  {
+    ret = wolfSSL_CTX_load_verify_buffer(result->getTlsContext(), (const unsigned char *) caRootCert.data(), caRootCert.size() + 1, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS)
+    {
+      OATPP_LOGE("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_load_verify_buffer() returned %d", ret);
+      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Call to wolfSSL_CTX_load_verify_buffer() failed.");
+    }
+  }
+
+  if (clientCert.size() != 0) {
+    ret = wolfSSL_CTX_use_certificate_buffer(result->getTlsContext(), (const unsigned char *) clientCert.data(), clientCert.size() + 1, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
+    if(ret != WOLFSSL_SUCCESS) {
+      OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_use_certificate_buffer return value=%d", ret);
+      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Can't parse serverCertFilePemFormat");
+    }
+  }
+
+  if (privateKey.size() != 0) {
+    ret = wolfSSL_CTX_use_PrivateKey_buffer(result->getTlsContext(), (const unsigned char *) privateKey.data(), privateKey.size() + 1, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
+    if(ret != WOLFSSL_SUCCESS) {
+      OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_use_PrivateKey_buffer, return value=%d", ret);
+      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Can't parse privateKeyFilePemFormat");
+    }
+  }
+
+  return result;
+}
+
 WOLFSSL_CTX *Config::getTlsContext() {
   return m_sslCtx;
 }

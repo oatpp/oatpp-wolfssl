@@ -70,6 +70,16 @@ public:
 
   /**
    * Create default client config.
+   * @param throwOnVerificationFailed - throw error on server certificate
+   * @param caRootCert - string buffer containing the CA Root certificate to verify against
+   * @param clientCert - string buffer containing the client certificate
+   * @param privateKey - string buffer containing the private key
+   * @return - `std::shared_ptr` to Config.
+   */
+  static std::shared_ptr<Config> createDefaultClientConfigShared(bool throwOnVerificationFailed, std::string caRootCert, std::string clientCert, std::string privateKey);
+
+  /**
+   * Create default client config.
    * @param caRootCertFile - path to the CA Root certificate to verificate against
    * @return - `std::shared_ptr` to Config.
    */
