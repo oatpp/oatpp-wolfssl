@@ -29,6 +29,13 @@
 
 #include "wolfssl/ssl.h"
 
+#include "configurer/CertificateChainFile.hpp"
+#include "configurer/CertificateChainFileBuffer.hpp"
+#include "configurer/CertificateFile.hpp"
+#include "configurer/CertificateFileBuffer.hpp"
+#include "configurer/PrivateKeyFile.hpp"
+#include "configurer/PrivateKeyFileBuffer.hpp"
+
 #if defined(OATPP_WOLFSSL_DEBUG)
 namespace oatpp { namespace wolfssl {
 static void wolfsslDebug(const int logLevel, const char* const logMessage) {
@@ -39,7 +46,7 @@ static void wolfsslDebug(const int logLevel, const char* const logMessage) {
 
 namespace oatpp { namespace wolfssl {
 
-Config::Config(WOLFSSL_METHOD *protocolMethod) {
+Config::Config(WOLFSSL_METHOD *protocolMethod, const std::list<std::shared_ptr<configurer::ContextConfigurer>> &configurationItems) {
   static int res = wolfSSL_Init();
   if (res != SSL_SUCCESS) {
     OATPP_LOGD("[oatpp::wolfssl::Config::Config()]", "Error. Call to wolfSSL_init() failed. Return value=%d", res);
@@ -60,92 +67,45 @@ Config::Config(WOLFSSL_METHOD *protocolMethod) {
   }
   wolfSSL_Debugging_ON();
 #endif
+
+  for (auto& configItem : configurationItems) {
+    configItem->configure(m_sslCtx);
+  }
 }
 
 Config::~Config() {
   wolfSSL_CTX_free(m_sslCtx);
 }
 
-std::shared_ptr<Config> Config::createShared(WOLFSSL_METHOD *protocolMethod) {
-  return std::make_shared<Config>(protocolMethod);
+std::shared_ptr<Config> Config::createShared(WOLFSSL_METHOD *protocolMethod, const std::list<std::shared_ptr<configurer::ContextConfigurer>> &configurationItems) {
+  return std::make_shared<Config>(protocolMethod, configurationItems);
 }
 
-std::shared_ptr<Config> Config::createDefaultServerConfigShared(const char* serverCertFilePemFormat, const char* privateKeyFilePemFormat, const char* pkPassword) {
-  auto result = createShared(wolfTLS_server_method());
+std::shared_ptr<Config> Config::createDefaultServerConfigShared(const oatpp::String& serverCertFilePemFormat, const oatpp::String& privateKeyFilePemFormat, const char* pkPassword) {
+  std::list<std::shared_ptr<configurer::ContextConfigurer>> configurationItems;
 
-  auto res = wolfSSL_CTX_use_certificate_file(result->getTlsContext(), serverCertFilePemFormat, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
-  if(res != WOLFSSL_SUCCESS) {
-    OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultServerConfigShared()]", "Error. Can't parse serverCertFilePemFormat path='%s', return value=%d", serverCertFilePemFormat, res);
-    throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultServerConfigShared()]: Error. Can't parse serverCertFilePemFormat");
-  }
+  configurationItems.push_back(std::make_shared<configurer::PrivateKeyFile>(privateKeyFilePemFormat, pkPassword));
+  configurationItems.push_back(std::make_shared<configurer::CertificateFile>(serverCertFilePemFormat));
 
-  if (pkPassword != nullptr) {
-    OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultServerConfigShared()]", "wolfSSL_CTX_set_default_passwd_cb_userdata()");
-    wolfSSL_CTX_set_default_passwd_cb_userdata(result->getTlsContext(), (void*)pkPassword);
-  }
-
-  res = wolfSSL_CTX_use_PrivateKey_file(result->getTlsContext(), privateKeyFilePemFormat, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
-  if(res != WOLFSSL_SUCCESS) {
-    OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultServerConfigShared()]", "Error. Can't parse privateKeyFilePemFormat path='%s', return value=%d", privateKeyFilePemFormat, res);
-    throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultServerConfigShared()]: Error. Can't parse privateKeyFilePemFormat");
-  }
-
-  return result;
+  return createShared(wolfTLS_server_method(), configurationItems);
 }
 
-std::shared_ptr<Config> Config::createDefaultClientConfigShared(const char* caRootCertFile) {
-  auto result = createShared(wolfTLS_client_method());
+std::shared_ptr<Config> Config::createDefaultClientConfigShared(const oatpp::String& caRootCertFile) {
+  std::list<std::shared_ptr<configurer::ContextConfigurer>> configurationItems;
 
-  if (caRootCertFile == nullptr) {
-    wolfSSL_CTX_set_verify(result->getTlsContext(), SSL_VERIFY_NONE, 0);
-  }
-  else
-  {
-    auto ret = wolfSSL_CTX_load_verify_locations(result->getTlsContext(), caRootCertFile, nullptr);
-    if (ret != SSL_SUCCESS)
-    {
-      OATPP_LOGE("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_load_verify_locations() returned %d", ret);
-      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Call to wolfSSL_CTX_load_verify_locations() failed.");
-    }
-  }
+  configurationItems.push_back(std::make_shared<configurer::CertificateChainFile>(caRootCertFile));
 
-  return result;
+  return createShared(wolfTLS_client_method(), configurationItems);
 }
 
-std::shared_ptr<Config> Config::createDefaultClientConfigShared(bool, std::string caRootCert, std::string clientCert, std::string privateKey) {
-  auto result = createShared(wolfTLS_client_method());
-  int ret = WOLFSSL_SUCCESS;
-  if (caRootCert.size() == 0)
-  {
-    wolfSSL_CTX_set_verify(result->getTlsContext(), SSL_VERIFY_NONE, 0);
-  }
-  else
-  {
-    ret = wolfSSL_CTX_load_verify_buffer(result->getTlsContext(), (const unsigned char *) caRootCert.data(), caRootCert.size() + 1, WOLFSSL_FILETYPE_PEM);
-    if (ret != WOLFSSL_SUCCESS)
-    {
-      OATPP_LOGE("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_load_verify_buffer() returned %d", ret);
-      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Call to wolfSSL_CTX_load_verify_buffer() failed.");
-    }
-  }
+std::shared_ptr<Config> Config::createDefaultClientConfigShared(std::string caRootCert, std::string clientCert, std::string privateKey) {
+  std::list<std::shared_ptr<configurer::ContextConfigurer>> configurationItems;
 
-  if (clientCert.size() != 0) {
-    ret = wolfSSL_CTX_use_certificate_buffer(result->getTlsContext(), (const unsigned char *) clientCert.data(), clientCert.size() + 1, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
-    if(ret != WOLFSSL_SUCCESS) {
-      OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_use_certificate_buffer return value=%d", ret);
-      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Can't parse serverCertFilePemFormat");
-    }
-  }
+  configurationItems.push_back(std::make_shared<configurer::CertificateChainFileBuffer>(caRootCert));
+  configurationItems.push_back(std::make_shared<configurer::PrivateKeyFileBuffer>(privateKey));
+  configurationItems.push_back(std::make_shared<configurer::CertificateFileBuffer>(clientCert));
 
-  if (privateKey.size() != 0) {
-    ret = wolfSSL_CTX_use_PrivateKey_buffer(result->getTlsContext(), (const unsigned char *) privateKey.data(), privateKey.size() + 1, WOLFSSL_FILETYPE_PEM/*WOLFSSL_FILETYPE_PEM*/);
-    if(ret != WOLFSSL_SUCCESS) {
-      OATPP_LOGD("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]", "Error. Call to wolfSSL_CTX_use_PrivateKey_buffer, return value=%d", ret);
-      throw std::runtime_error("[oatpp::wolfssl::Config::createDefaultClientConfigShared()]: Error. Can't parse privateKeyFilePemFormat");
-    }
-  }
-
-  return result;
+  return createShared(wolfTLS_client_method(), configurationItems);
 }
 
 WOLFSSL_CTX *Config::getTlsContext() {
